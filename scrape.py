@@ -16,7 +16,7 @@ def americanToDecimal(a):
 
 def scrapeBet365(d):
     d.get("https://www.bet365.com/#/AC/B17/C20798172/D48/E972/F10/")
-    time.sleep(1)
+    time.sleep(3)
     element = WebDriverWait(d, 8).until(EC.presence_of_element_located((By.CLASS_NAME, 'gl-MarketGroupContainer')))
     teams = element.find_elements(by=By.XPATH, value='//div[@class="sci-ParticipantFixtureDetailsHigherIceHockey_Team "]')
     money_line = element.find_elements(by=By.XPATH, value='//span[@class="sac-ParticipantOddsOnly50OTB_Odds"]')
@@ -26,8 +26,10 @@ def scrapeBet365(d):
         vig = {}
         vig["away"] = americanToDecimal(money_line[i].text)
         vig["home"] = americanToDecimal(money_line[i + 1].text)
-        vig["payout"] = 1 / ((1 / vig["away"]) + (1 / vig["home"]))
-        bet365[teams[i].text + " - " + teams[i + 1].text] = vig
+        if vig["away"] and vig["home"]:
+            vig["payout"] = 1 / ((1 / vig["away"]) + (1 / vig["home"]))
+            game = teams[i].text.split(" ")[-1] + "-" + teams[i + 1].text.split(" ")[-1]
+            bet365[game] = vig
         i += 2
     return bet365
 
@@ -42,10 +44,14 @@ def scrapeBetway(d):
         if len(text) > 4:
             text = text[2:]
         try: 
-            away = float(text[-2])
-            home = float(text[-1])
-            teams = text[1].split(" @ ")
-            game = teams[0].split(" ")[-1] + "-" + teams[1].split(" ")[-1]
+            vig = {}
+            vig["away"] = float(text[-2])
+            vig["home"] = float(text[-1])
+            if vig["away"] and vig["home"]:
+                vig["payout"] = 1 / ((1 / vig["away"]) + (1 / vig["home"]))
+                teams = text[1].split(" @ ")
+                game = teams[0].split(" ")[-1] + "-" + teams[1].split(" ")[-1]
+            betway[game] = vig
         except:
             pass
     return betway
@@ -55,9 +61,8 @@ options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 driver = webdriver.Chrome(options=options)
 
-
-print(scrapeBet365(driver))
-# print(scrapeBetway(driver))
+# print(scrapeBet365(driver))
+print(scrapeBetway(driver))
 
 
 
