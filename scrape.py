@@ -24,13 +24,15 @@ def scrapeBet365(d):
     i = 0
     while i < len(teams):
         vig = {}
-        vig["away"] = americanToDecimal(money_line[i].text)
-        vig["home"] = americanToDecimal(money_line[i + 1].text)
-        if vig["away"] and vig["home"]:
-            vig["payout"] = 1 / ((1 / vig["away"]) + (1 / vig["home"]))
+        away = americanToDecimal(money_line[i].text)
+        home = americanToDecimal(money_line[i + 1].text)
+        if away and home:
+            vig = 1 / ((1 / away) + (1 / home))
             game = teams[i].text.split(" ")[-1] + "-" + teams[i + 1].text.split(" ")[-1]
             bet365[game] = vig
         i += 2
+
+    bet365 = sorted(bet365.items(), key=lambda vig: vig[1], reverse=True)
     return bet365
 
 def scrapeBetway(d):    
