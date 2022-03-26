@@ -21,10 +21,14 @@ def scrapeBet365(d):
     teams = element.find_elements(by=By.XPATH, value='//div[@class="sci-ParticipantFixtureDetailsHigherIceHockey_Team "]')
     money_line = element.find_elements(by=By.XPATH, value='//span[@class="sac-ParticipantOddsOnly50OTB_Odds"]')
     bet365 = {}
-    for i in range(len(teams)):
-        odds = americanToDecimal(money_line[i].text)
-        if odds:
-            bet365[teams[i].text] = odds
+    i = 0
+    while i < len(teams):
+        vig = {}
+        vig["away"] = americanToDecimal(money_line[i].text)
+        vig["home"] = americanToDecimal(money_line[i + 1].text)
+        vig["payout"] = 1 / ((1 / vig["away"]) + (1 / vig["home"]))
+        bet365[teams[i].text + " - " + teams[i + 1].text] = vig
+        i += 2
     return bet365
 
 def scrapeBetway(d):    
@@ -35,7 +39,15 @@ def scrapeBetway(d):
     betway = {}
     for i in range(len(events)):
         text = events[i].text.split("\n")
-        print(text)
+        if len(text) > 4:
+            text = text[2:]
+        try: 
+            away = float(text[-2])
+            home = float(text[-1])
+            teams = text[1].split(" @ ")
+            game = teams[0].split(" ")[-1] + "-" + teams[1].split(" ")[-1]
+        except:
+            pass
     return betway
 
 # chromedriver setup 
@@ -44,8 +56,8 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 driver = webdriver.Chrome(options=options)
 
 
-# print(scrapeBet365(driver))
-print(scrapeBetway(driver))
+print(scrapeBet365(driver))
+# print(scrapeBetway(driver))
 
 
 
