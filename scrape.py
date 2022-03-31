@@ -3,6 +3,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import time
+from collections import OrderedDict
+from operator import getitem
 
 def americanToDecimal(a):
     if not a: return None
@@ -15,10 +17,12 @@ def americanToDecimal(a):
         return None
 
 def scrapeBet365(d):
+    # Scraping hockey (NHL)
     d.get("https://www.bet365.com/#/AC/B17/C20798172/D48/E972/F10/")
     time.sleep(3)
     element = WebDriverWait(d, 8).until(EC.presence_of_element_located((By.CLASS_NAME, 'gl-MarketGroupContainer')))
-    teams = element.find_elements(by=By.XPATH, value='//div[@class="sci-ParticipantFixtureDetailsHigherIceHockey_Team "]')
+    teams = element.find_elements(by=By.XPATH,
+                                  value='//div[@class="sci-ParticipantFixtureDetailsHigherIceHockey_Team "]')
     money_line = element.find_elements(by=By.XPATH, value='//span[@class="sac-ParticipantOddsOnly50OTB_Odds"]')
     bet365 = {}
     i = 0
@@ -31,6 +35,7 @@ def scrapeBet365(d):
             game = teams[i].text.split(" ")[-1] + "-" + teams[i + 1].text.split(" ")[-1]
             bet365[game] = vig
         i += 2
+    bet365 = OrderedDict(sorted(bet365.items(), key=lambda x: getitem(x[1], "payout"), reverse=True))
     return bet365
 
 def scrapeBetway(d):    
