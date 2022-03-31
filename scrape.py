@@ -59,6 +59,7 @@ def scrapeBetway(d):
             betway[game] = vig
         except:
             pass
+    betway = OrderedDict(sorted(betway.items(), key=lambda x: getitem(x[1], "payout"), reverse=True))
     return betway
 
 # chromedriver setup 
