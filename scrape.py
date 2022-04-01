@@ -3,7 +3,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import time
-from collections import OrderedDict
 from operator import getitem
 
 def americanToDecimal(a):
@@ -35,7 +34,7 @@ def scrapeBet365(d):
             game = teams[i].text.split(" ")[-1] + "-" + teams[i + 1].text.split(" ")[-1]
             bet365[game] = vig
         i += 2
-    bet365 = OrderedDict(sorted(bet365.items(), key=lambda x: getitem(x[1], "payout"), reverse=True))
+    bet365 = dict(sorted(bet365.items(), key=lambda x: getitem(x[1], "payout"), reverse=True))
     return bet365
 
 def scrapeBetway(d):    
@@ -59,7 +58,7 @@ def scrapeBetway(d):
             betway[game] = vig
         except:
             pass
-    betway = OrderedDict(sorted(betway.items(), key=lambda x: getitem(x[1], "payout"), reverse=True))
+    betway = dict(sorted(betway.items(), key=lambda x: getitem(x[1], "payout"), reverse=True))
     return betway
 
 # chromedriver setup 
@@ -67,8 +66,8 @@ options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 driver = webdriver.Chrome(options=options)
 
-# print(scrapeBet365(driver))
-print(scrapeBetway(driver))
+print(scrapeBet365(driver))
+# print(scrapeBetway(driver))
 
 
 
