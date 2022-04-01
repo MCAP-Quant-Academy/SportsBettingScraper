@@ -66,10 +66,25 @@ options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 driver = webdriver.Chrome(options=options)
 
-print(scrapeBet365(driver))
-# print(scrapeBetway(driver))
+bet365Dict = scrapeBet365(driver)
+betwayDict = scrapeBetway(driver)
 
+for key in bet365Dict:
+    if key in betwayDict:
+        print(key)
+        homeAway = 1 / ((1 / bet365Dict[key]["home"]) + (1 / betwayDict[key]["away"]))
+        awayHome = 1 / ((1 / bet365Dict[key]["away"]) + (1 / betwayDict[key]["home"]))
 
+        bet365 = 1 / ((1 / bet365Dict[key]["home"]) + (1 / bet365Dict[key]["away"]))
+        betway = 1 / ((1 / betwayDict[key]["home"]) + (1 / betwayDict[key]["away"]))
 
+        maxVig = max(homeAway, awayHome, bet365, betway)
 
-
+        if maxVig == homeAway:
+            print("Bet365 home, Betway away: " + str(homeAway))
+        elif maxVig == awayHome:
+            print("Betway away, Bet365 home: " + str(awayHome))
+        elif maxVig == bet365:
+            print("Bet365 away, Bet365 home: " + str(bet365))
+        elif maxVig == betway:
+            print("Betway away, Betway home: " + str(betway))
